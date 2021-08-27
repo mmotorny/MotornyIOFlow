@@ -8,7 +8,7 @@
 #include "boost/locale/message.hpp"
 
 namespace motorny {
-namespace helloxplane {
+namespace devicedatarefs {
 
 enum PluginStart {
   kPlugingStartFailure = 0,
@@ -77,5 +77,5 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID plugin_id, int message,
   g_plugin->ReceiveMessage(plugin_id, message, message_data);
 }
 
-}  // namespace helloxplane
+}  // namespace devicedatarefs
 }  // namespace motorny
