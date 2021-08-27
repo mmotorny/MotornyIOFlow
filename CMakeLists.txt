@@ -6,27 +6,27 @@ cmake_minimum_required(VERSION 3.21)
 
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
-project(DeviceDatarefs)
+project(MotornyDeviceDatarefs)
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/XPSDK)
 
 # ------------------------------------------------------------------------------
-add_library(DeviceDatarefs_CommonOptions INTERFACE)
+add_library(MotornyDeviceDatarefs_CommonOptions INTERFACE)
 
-target_compile_features(DeviceDatarefs_CommonOptions INTERFACE cxx_std_20)
+target_compile_features(MotornyDeviceDatarefs_CommonOptions INTERFACE cxx_std_20)
 
 if (MSVC)
-  target_compile_options(DeviceDatarefs_CommonOptions INTERFACE
+  target_compile_options(MotornyDeviceDatarefs_CommonOptions INTERFACE
       /W4
       /WX
   )
 
-  target_link_options(DeviceDatarefs_CommonOptions INTERFACE
+  target_link_options(MotornyDeviceDatarefs_CommonOptions INTERFACE
       /INCREMENTAL:NO
   )
 endif()
 
-target_compile_definitions(DeviceDatarefs_CommonOptions INTERFACE 
+target_compile_definitions(MotornyDeviceDatarefs_CommonOptions INTERFACE 
     XPLM200
     XPLM210
     XPLM300
@@ -35,28 +35,28 @@ target_compile_definitions(DeviceDatarefs_CommonOptions INTERFACE
 )
 
 # ------------------------------------------------------------------------------
-add_library(DeviceDatarefs SHARED 
+add_library(MotornyDeviceDatarefs SHARED 
     src/Plugin.cpp
 )
 
-set_target_properties(DeviceDatarefs PROPERTIES
+set_target_properties(MotornyDeviceDatarefs PROPERTIES
     SUFFIX .xpl
 )
 
-target_link_libraries(DeviceDatarefs
-    DeviceDatarefs_CommonOptions
+target_link_libraries(MotornyDeviceDatarefs
+    MotornyDeviceDatarefs_CommonOptions
     XPLM
 )
 
-add_custom_command(TARGET DeviceDatarefs POST_BUILD
+add_custom_command(TARGET MotornyDeviceDatarefs POST_BUILD
     COMMAND echo $<CONFIG> > CurrentConfig.txt
     VERBATIM
 )
 
 if (${CMAKE_SYSTEM_NAME} STREQUAL Windows)
-  install(TARGETS DeviceDatarefs
+  install(TARGETS MotornyDeviceDatarefs
       RUNTIME 
       DESTINATION win_x64
-      COMPONENT "DeviceDatarefs"
+      COMPONENT "MotornyDeviceDatarefs"
   )
 endif()

@@ -35,7 +35,7 @@ Plugin *g_plugin = nullptr;
 
 Plugin::Plugin(char *name, char *signature, char *description) {
   constexpr auto kMaxOutStringLength = 256;
-  strcpy_s(name, kMaxOutStringLength, "Device Datarefs");
+  strcpy_s(name, kMaxOutStringLength, "Motorny Device Datarefs");
   strcpy_s(signature, kMaxOutStringLength, "motorny.devicedatarefs");
   strcpy_s(description, kMaxOutStringLength, "Provides access to USB HID and COM devices through datarefs.");
 }

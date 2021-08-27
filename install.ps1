@@ -10,4 +10,4 @@ echo "X-Plane 11 is found at $PathToXPlane11"
 $CurrentConfig = cat build\CurrentConfig.txt
 echo "Build configuration is $CurrentConfig"
 
-cmake --install build --prefix $PathToXPlane11\Resources\plugins\DeviceDatarefs --config $CurrentConfig --component DeviceDatarefs
+cmake --install build --prefix $PathToXPlane11\Resources\plugins\MotornyDeviceDatarefs --config $CurrentConfig --component MotornyDeviceDatarefs
