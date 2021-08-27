@@ -5,6 +5,7 @@
 #include <cstring>
 
 #include "XPLMDefs.h"
+#include "boost/locale/message.hpp"
 
 namespace motorny {
 namespace helloxplane {
@@ -35,9 +36,14 @@ Plugin *g_plugin = nullptr;
 
 Plugin::Plugin(char *name, char *signature, char *description) {
   constexpr auto kMaxOutStringLength = 256;
-  strcpy_s(name, kMaxOutStringLength, "Motorny Device Datarefs");
+  strcpy_s(name, kMaxOutStringLength,
+           boost::locale::translate("Motorny Device Datarefs").str().c_str());
   strcpy_s(signature, kMaxOutStringLength, "motorny.devicedatarefs");
-  strcpy_s(description, kMaxOutStringLength, "Provides access to USB HID and COM devices through datarefs.");
+  strcpy_s(description, kMaxOutStringLength,
+           boost::locale::translate(
+               "Provides access to USB HID and COM devices through datarefs.")
+               .str()
+               .c_str());
 }
 
 Plugin::~Plugin() {}

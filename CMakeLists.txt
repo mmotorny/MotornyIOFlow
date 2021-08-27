@@ -8,6 +8,7 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 project(MotornyDeviceDatarefs)
 
+add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/boost)
 add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/XPSDK)
 
 # ------------------------------------------------------------------------------
@@ -44,6 +45,7 @@ set_target_properties(MotornyDeviceDatarefs PROPERTIES
 )
 
 target_link_libraries(MotornyDeviceDatarefs
+    Boost::locale
     MotornyDeviceDatarefs_CommonOptions
     XPLM
 )
