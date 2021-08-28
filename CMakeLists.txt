@@ -14,7 +14,9 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/XPSDK)
 # ------------------------------------------------------------------------------
 add_library(MotornyDeviceDatarefs_CommonOptions INTERFACE)
 
-target_compile_features(MotornyDeviceDatarefs_CommonOptions INTERFACE cxx_std_20)
+target_compile_features(MotornyDeviceDatarefs_CommonOptions INTERFACE
+    cxx_std_23
+)
 
 if (MSVC)
   target_compile_options(MotornyDeviceDatarefs_CommonOptions INTERFACE
@@ -34,6 +36,13 @@ target_compile_definitions(MotornyDeviceDatarefs_CommonOptions INTERFACE
     XPLM301
     XPLM302
 )
+
+if (${CMAKE_SYSTEM_NAME} STREQUAL Windows)
+  target_compile_definitions(MotornyDeviceDatarefs_CommonOptions INTERFACE 
+      MOTORNY_DEVICE_DATAREFS_PLATFORM_WINDOWS
+      UNICODE
+  )
+endif()
 
 # ------------------------------------------------------------------------------
 add_library(MotornyDeviceDatarefs SHARED 
