@@ -15,6 +15,7 @@
 #include "XPLMDefs.h"
 #include "XPLMUtilities.h"
 #include "boost/locale/message.hpp"
+#include "glog/logging.h"
 
 namespace motorny {
 namespace devicedatarefs {
@@ -29,6 +30,43 @@ enum PluginEnable {
   kPlugingEnableSuccess = 1,
 };
 
+class XPlaneLogSink : public google::LogSink {
+ public:
+  XPlaneLogSink();
+  ~XPlaneLogSink();
+
+  void send(google::LogSeverity severity, const char *file_path,
+            const char *file_name, int line, const struct tm *time,
+            const char *message, size_t message_size,
+            int microseconds) override;
+  void send(google::LogSeverity severity, const char *file_path,
+            const char *file_name, int line, const struct tm *time,
+            const char *message, size_t message_size) override;
+};
+
+XPlaneLogSink::XPlaneLogSink() { AddLogSink(this); }
+
+XPlaneLogSink::~XPlaneLogSink() { RemoveLogSink(this); }
+
+void XPlaneLogSink::send(google::LogSeverity severity, const char *file_path,
+                         const char * /*file_name*/, int line,
+                         const struct tm *time, const char *message,
+                         size_t /*message_size*/, int microseconds) {
+  XPLMDebugString(
+      std::format(
+          "[{:04}-{:02}-{:02} {:02}:{:02}:{:02}.{:06}] {}({}): {}: {}\n",
+          time->tm_year + 1900, time->tm_mon + 1, time->tm_mday, time->tm_hour,
+          time->tm_min, time->tm_sec, microseconds, file_path, line,
+          google::GetLogSeverityName(severity), message)
+          .c_str());
+}
+
+void XPlaneLogSink::send(google::LogSeverity severity, const char *file_path,
+                         const char *file_name, int line, const struct tm *time,
+                         const char *message, size_t message_size) {
+  send(severity, file_path, file_name, line, time, message, message_size, 0);
+}
+
 class Plugin {
  public:
   Plugin(char *name, char *signature, char *description);
@@ -37,27 +75,13 @@ class Plugin {
   void Enable();
   void Disable();
   void ReceiveMessage(XPLMPluginID plugin_id, int message, void *message_data);
+
+ private:
+  XPlaneLogSink x_plane_log_sink_;
 };
 
 namespace {
 Plugin *g_plugin = nullptr;
-}  // namespace
-
-Plugin::Plugin(char *name, char *signature, char *description) {
-  constexpr auto kMaxOutStringLength = 256;
-  strcpy_s(name, kMaxOutStringLength,
-           boost::locale::translate("Motorny Device Datarefs").str().c_str());
-  strcpy_s(signature, kMaxOutStringLength, "motorny.devicedatarefs");
-  strcpy_s(description, kMaxOutStringLength,
-           boost::locale::translate(
-               "Provides access to USB HID and COM devices through datarefs.")
-               .str()
-               .c_str());
-}
-
-Plugin::~Plugin() {}
-
-namespace {
 
 #if defined(MOTORNY_DEVICE_DATAREFS_PLATFORM_WINDOWS)
 std::string ConvertUcs2ToUtf8(wchar_t *ucs2_string) {
@@ -80,6 +104,44 @@ std::string FormatSystemErrorMessage(DWORD error_code) {
   return ConvertUcs2ToUtf8(message);
 }
 #endif  // defined(MOTORNY_DEVICE_DATAREFS_PLATFORM_WINDOWS)
+
+std::string GetPluginPath() {
+#if defined(MOTORNY_DEVICE_DATAREFS_PLATFORM_WINDOWS)
+  HMODULE module;
+  if (GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+                            GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                        reinterpret_cast<LPCWSTR>(&GetPluginPath),
+                        &module) == 0) {
+    return "";
+  }
+
+  std::vector<wchar_t> module_name(MAX_PATH + 1, L'\0');
+  GetModuleFileName(module, module_name.data(), MAX_PATH);
+  return ConvertUcs2ToUtf8(module_name.data());
+#else
+#error Unsupported platform.
+#endif  // defined(MOTORNY_DEVICE_DATAREFS_PLATFORM_WINDOWS)
+}
+
+}  // namespace
+
+Plugin::Plugin(char *name, char *signature, char *description) {
+  google::InitGoogleLogging(GetPluginPath().c_str());
+
+  constexpr auto kMaxOutStringLength = 256;
+  strcpy_s(name, kMaxOutStringLength,
+           boost::locale::translate("Motorny Device Datarefs").str().c_str());
+  strcpy_s(signature, kMaxOutStringLength, "motorny.devicedatarefs");
+  strcpy_s(description, kMaxOutStringLength,
+           boost::locale::translate(
+               "Provides access to USB HID and COM devices through datarefs.")
+               .str()
+               .c_str());
+}
+
+Plugin::~Plugin() {}
+
+namespace {
 
 using ComPortNamesOrErrorMessage =
     std::variant<std::vector<std::string>, std::string>;
@@ -122,23 +184,16 @@ struct overloaded : Ts... {
   using Ts::operator()...;
 };
 
-template <typename... Args>
-void LogToXPlane(std::string_view format, Args &&...args) {
-  XPLMDebugString(std::vformat(format, std::make_format_args(args...)).c_str());
-}
-
 }  // namespace
 
 void Plugin::Enable() {
-  // TODO: Set plugin status dataref.
   std::visit(overloaded{[&](const std::vector<std::string> &com_port_names) {
                           for (auto com_port_name : com_port_names) {
-                            LogToXPlane("{}: Found {}\n", __FUNCTION__,
-                                        com_port_name);
+                            DLOG(INFO) << "Found " << com_port_name;
                           }
                         },
                         [](const std::string &error_message) {
-                          LogToXPlane("{}: {}\n", __FUNCTION__, error_message);
+                          DLOG(ERROR) << error_message;
                         }},
              QueryComPortNames());
 }

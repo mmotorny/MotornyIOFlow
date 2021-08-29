@@ -4,11 +4,12 @@
 
 cmake_minimum_required(VERSION 3.21)
 
-set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-
 project(MotornyDeviceDatarefs)
 
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
 add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/boost)
+add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/glog)
 add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/XPSDK)
 
 # ------------------------------------------------------------------------------
@@ -55,6 +56,7 @@ set_target_properties(MotornyDeviceDatarefs PROPERTIES
 
 target_link_libraries(MotornyDeviceDatarefs
     Boost::locale
+    glog
     MotornyDeviceDatarefs_CommonOptions
     XPLM
 )
