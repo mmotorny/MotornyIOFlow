@@ -1,0 +1,36 @@
+// Copyright (c) 2021, Maksym Motorny. All rights reserved.
+// Use of this source code is governed by a 3-clause BSD license that can be
+// found in the LICENSE file.
+
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build Current CMake Target",
+      "type": "shell",
+      "command": "cmake --build ${command:cmake.buildDirectory} --target ${command:cmake.buildTargetName} --config ${command:cmake.buildType} --parallel ${env:NUMBER_OF_PROCESSORS}",
+      "presentation": {
+        "clear": true,
+        "focus": true,
+        "panel": "dedicated"
+      },
+      "problemMatcher": "$msCompile",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "Install Current CMake Target",
+      "type": "shell",
+      "command": "pwsh .vscode/Install-CMake-Target.ps1 -Build ${command:cmake.buildDirectory} -Target ${command:cmake.buildTargetName} -Config ${command:cmake.buildType}",
+      "presentation": {
+        "clear": true,
+        "focus": true,
+        "panel": "dedicated"
+      },
+      "problemMatcher": [],
+      "dependsOn": "Build Current CMake Target"
+    }
+  ]
+}

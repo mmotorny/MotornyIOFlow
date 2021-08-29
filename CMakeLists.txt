@@ -61,11 +61,6 @@ target_link_libraries(MotornyDeviceDatarefs
     XPLM
 )
 
-add_custom_command(TARGET MotornyDeviceDatarefs POST_BUILD
-    COMMAND echo $<CONFIG> > CurrentConfig.txt
-    VERBATIM
-)
-
 if (${CMAKE_SYSTEM_NAME} STREQUAL Windows)
   install(TARGETS MotornyDeviceDatarefs
       RUNTIME 
