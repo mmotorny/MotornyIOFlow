@@ -1,18 +1,27 @@
 {
+  "$comment": "Copyright (c) 2021, Maksym Motorny. All rights reserved. Use of this source code is governed by a 3-clause BSD license that can be found in the LICENSE file.",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "JSON schema for Configuration.json used by Motorny Device Datarefs",
   
   "type": "object",
   "properties": {
-    "type": {
-      "type": "string",
-      "enum": ["Serial", "UsbHid"]
-    },
-    "path": {
-      "type": "string"
-    },
-    "baudRate": {
-      "type": "integer"
+    "devices": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["Serial", "UsbHid"]
+          },
+          "path": {
+            "type": "string"
+          },
+          "baudRate": {
+            "type": "integer"
+          }      
+        }
+      }
     }
   }
 }
