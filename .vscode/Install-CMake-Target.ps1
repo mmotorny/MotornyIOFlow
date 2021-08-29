@@ -4,5 +4,5 @@
 
 Param([string] $Build, [string] $Target, [string] $Config)
 
-$PathToXPlane11 = cat $Env:LOCALAPPDATA\x-plane_install_11.txt
-cmake --install $Build --prefix $PathToXPlane11\Resources\plugins\$Target --config $Config --component $Config
+$PathToXPlane11 = Get-Content $Env:LOCALAPPDATA\x-plane_install_11.txt
+cmake --install $Build --prefix $(Resolve-Path $PathToXPlane11\Resources\plugins\$Target) --config $Config --component $Target

@@ -2,9 +2,9 @@
 // Use of this source code is governed by a 3-clause BSD license that can be
 // found in the LICENSE file.
 
-#if defined(MOTORNY_DEVICE_DATAREFS_PLATFORM_WINDOWS)
+#if defined(MOTORNY_IOFLOW_PLATFORM_WINDOWS)
 #include <Windows.h>
-#endif  // defined(MOTORNY_DEVICE_DATAREFS_PLATFORM_WINDOWS)
+#endif  // defined(MOTORNY_IOFLOW_PLATFORM_WINDOWS)
 
 #include <cassert>
 #include <cstring>
@@ -18,7 +18,7 @@
 #include "glog/logging.h"
 
 namespace motorny {
-namespace devicedatarefs {
+namespace ioflow {
 
 enum PluginStart {
   kPlugingStartFailure = 0,
@@ -83,7 +83,7 @@ class Plugin {
 namespace {
 Plugin *g_plugin = nullptr;
 
-#if defined(MOTORNY_DEVICE_DATAREFS_PLATFORM_WINDOWS)
+#if defined(MOTORNY_IOFLOW_PLATFORM_WINDOWS)
 std::string ConvertUcs2ToUtf8(wchar_t *ucs2_string) {
   int utf8_string_size = WideCharToMultiByte(CP_UTF8, 0, ucs2_string, -1,
                                              nullptr, 0, nullptr, nullptr);
@@ -103,10 +103,10 @@ std::string FormatSystemErrorMessage(DWORD error_code) {
                                                                &LocalFree);
   return ConvertUcs2ToUtf8(message);
 }
-#endif  // defined(MOTORNY_DEVICE_DATAREFS_PLATFORM_WINDOWS)
+#endif  // defined(MOTORNY_IOFLOW_PLATFORM_WINDOWS)
 
 std::string GetPluginPath() {
-#if defined(MOTORNY_DEVICE_DATAREFS_PLATFORM_WINDOWS)
+#if defined(MOTORNY_IOFLOW_PLATFORM_WINDOWS)
   HMODULE module;
   if (GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
                             GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
@@ -120,7 +120,7 @@ std::string GetPluginPath() {
   return ConvertUcs2ToUtf8(module_name.data());
 #else
 #error Unsupported platform.
-#endif  // defined(MOTORNY_DEVICE_DATAREFS_PLATFORM_WINDOWS)
+#endif  // defined(MOTORNY_IOFLOW_PLATFORM_WINDOWS)
 }
 
 }  // namespace
@@ -130,11 +130,11 @@ Plugin::Plugin(char *name, char *signature, char *description) {
 
   constexpr auto kMaxOutStringLength = 256;
   strcpy_s(name, kMaxOutStringLength,
-           boost::locale::translate("Motorny Device Datarefs").str().c_str());
-  strcpy_s(signature, kMaxOutStringLength, "motorny.devicedatarefs");
+           boost::locale::translate("Motorny I/O Flow").str().c_str());
+  strcpy_s(signature, kMaxOutStringLength, "motorny.ioflow");
   strcpy_s(description, kMaxOutStringLength,
            boost::locale::translate(
-               "Provides access to USB HID and COM devices through datarefs.")
+               "Connects USB HID and COM devices to X-Plane datarefs and commands.")
                .str()
                .c_str());
 }
@@ -147,7 +147,7 @@ using ComPortNamesOrErrorMessage =
     std::variant<std::vector<std::string>, std::string>;
 
 ComPortNamesOrErrorMessage QueryComPortNames() {
-#if defined(MOTORNY_DEVICE_DATAREFS_PLATFORM_WINDOWS)
+#if defined(MOTORNY_IOFLOW_PLATFORM_WINDOWS)
   std::vector<wchar_t> response(1024, L'\0');
   while (QueryDosDevice(nullptr, response.data(),
                         static_cast<DWORD>(response.size())) == 0) {
@@ -176,7 +176,7 @@ ComPortNamesOrErrorMessage QueryComPortNames() {
   return com_port_names;
 #else
 #error Unsupported platform.
-#endif  // defined(MOTORNY_DEVICE_DATAREFS_PLATFORM_WINDOWS)
+#endif  // defined(MOTORNY_IOFLOW_PLATFORM_WINDOWS)
 }
 
 template <class... Ts>
@@ -225,5 +225,5 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID plugin_id, int message,
   g_plugin->ReceiveMessage(plugin_id, message, message_data);
 }
 
-}  // namespace devicedatarefs
+}  // namespace ioflow
 }  // namespace motorny
